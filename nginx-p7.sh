@@ -171,24 +171,22 @@ mkdir config
 chmod o+rw config
 cp config.sample.inc.php config/config.inc.php
 
-erb ${OPENSHIFT_REPO_DIR}config/nginx.d/default.conf.erb > ${OPENSHIFT_REPO_DIR}config/nginx.d/default.conf
-cp ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf.default
-erb ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf.erb > ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf
-
 sed -i "s/session.auto_start = 0/session.auto_start = 1/g" ${OPENSHIFT_PHP_DIR}configuration/etc/php.ini
-
 
 #unzip -d 目标目录 ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT
 #jar cvf ROOT.war */ .
 
 cd /tmp
-rm -rf jeewx-master
-wget -O root.zip https://codeload.github.com/lamubake/jeewx/zip/master
+rm -rf jeewx-webroot-master
+wget -O root.zip https://codeload.github.com/lamubake/jeewx-webroot/zip/master
 unzip root && rm root.zip
-cd ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps
 rm -rf ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx
 mkdir ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx
-cp -rf /tmp/jeewx-master/WebRoot/* ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx/
+cp -rf /tmp/jeewx-webroot-master/* ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx/
+erb ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx/WEB-INF/classes/dbconfig.properties.erb > ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx/WEB-INF/classes/dbconfig.properties
+mysql
+use lamubake;
+source /tmp/jeewx-webroot-master/jeewx-mysql-2.3.sql;
 
 cd /tmp/jeewx-master/WebRoot && zip -r -q ROOT.war * && cp ROOT.war ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT.war
 cd /tmp/jeewx-master/WebRoot && rm ROOT.war && zip -r -q ROOT.war * && cp ROOT.war ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT.war
@@ -216,13 +214,15 @@ erb ${OPENSHIFT_REPO_DIR}php/phpMyAdmin/libraries/config.default.php.erb > ${OPE
 erb ${OPENSHIFT_REPO_DIR}config/nginx.d/default.conf.erb > ${OPENSHIFT_REPO_DIR}config/nginx.d/default.conf
 cp ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf.default
 erb ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf.erb > ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf
-
 mysql
 use jungule;
 source /tmp/gopecn.sql;
 
 export JAVA_OPTS="-server -Xms80m -Xmx128m -XX:MaxPermSize=256m -XX:+AggressiveOpts -XX:MinHeapFreeRatio=20"
+cd /tmp
+wget http://tenet.dl.sourceforge.net/project/jmyadmin/jmyadmin/0.7.3/jmyadmin-0.7.3.zip
+unzip jmyadmin-0.7.3.zip
+cd ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps
+mkdir jmyadmin
+cp -rf /tmp/jmyadmin-0.7.3/* ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jmyadmin/
 
-rm -rf ${OPENSHIFT_REPO_DIR}php/phpMyAdmin
-cd ${OPENSHIFT_REPO_DIR}php
-unzip phpMyAdmin
