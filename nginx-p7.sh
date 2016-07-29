@@ -1,6 +1,15 @@
 #!/bin/bash
 
 rhc app create jungule https://reflector-getupcloud.getup.io/reflect?github=getupcloud/openshift-nginx-php-fpm
+rhc app create -a lamu88 -t tomcat-6
+rhc-create-app -a -t diy-0.1
+rhc app cartridge add -a lamu88 -c mysql-5.5
+rhc app cartridge add -a -c phpmyadmin-3.4
+rhc app cartridge remove -a lamu88 -c mysql-5.5
+rhc alias add lamu88 www.lamu88.com
+rhc app cartridge list
+rhc apps
+
 
 NGINX_VERSION='1.9.9'
 PHP_VERSION='7.0.2'
@@ -180,13 +189,15 @@ cd /tmp
 rm -rf jeewx-webroot-master
 wget -O root.zip https://codeload.github.com/lamubake/jeewx-webroot/zip/master
 unzip root && rm root.zip
-rm -rf ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx
-mkdir ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx
-cp -rf /tmp/jeewx-webroot-master/* ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx/
+rm -rf ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT
+mkdir ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT
+cp -rf /tmp/jeewx-webroot-master/* ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT/
+mv ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx/* ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT/ 
 erb ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx/WEB-INF/classes/dbconfig.properties.erb > ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jeewx/WEB-INF/classes/dbconfig.properties
+#erb /tmp/jeewx-webroot-master/server.xml.erb > ${OPENSHIFT_PRIMARY_CARTRIDGE_DIR}conf/server.xml
 mysql
-use lamubake;
-source /tmp/jeewx-webroot-master/jeewx-mysql-2.3.sql;
+use lamubake
+source /tmp/jeewx-webroot-master/jeewx-mysql-2.3.sql
 
 cd /tmp/jeewx-master/WebRoot && zip -r -q ROOT.war * && cp ROOT.war ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT.war
 cd /tmp/jeewx-master/WebRoot && rm ROOT.war && zip -r -q ROOT.war * && cp ROOT.war ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT.war
@@ -197,7 +208,6 @@ chmod 755 test.sh
 ./test
 
 cd ${OPENSHIFT_REPO_DIR}.openshift/action_hooks
-
 echo ${OPENSHIFT_MYSQL_DB_HOST}
 echo ${OPENSHIFT_MYSQL_DB_PORT}
 echo ${OPENSHIFT_APP_NAME}
@@ -215,14 +225,30 @@ erb ${OPENSHIFT_REPO_DIR}config/nginx.d/default.conf.erb > ${OPENSHIFT_REPO_DIR}
 cp ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf.default
 erb ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf.erb > ${OPENSHIFT_PHP_DIR}configuration/etc/nginx.conf
 mysql
-use jungule;
-source /tmp/gopecn.sql;
+use jungule
+source /tmp/wechat-tonglu-business-master/gopecn.sql
 
 export JAVA_OPTS="-server -Xms80m -Xmx128m -XX:MaxPermSize=256m -XX:+AggressiveOpts -XX:MinHeapFreeRatio=20"
+
 cd /tmp
-wget http://tenet.dl.sourceforge.net/project/jmyadmin/jmyadmin/0.7.3/jmyadmin-0.7.3.zip
-unzip jmyadmin-0.7.3.zip
-cd ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps
-mkdir jmyadmin
-cp -rf /tmp/jmyadmin-0.7.3/* ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/jmyadmin/
+wget -O root.zip https://codeload.github.com/lamubake/jeecms/zip/master
+unzip root && rm root.zip
+mkdir ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT
+cp -rf /tmp/jeecms-master/* ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT/
+rm ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/ROOT.war
+
+cd /tmp
+wget -O root.zip https://codeload.github.com/lamubake/p3-weixin/zip/master
+unzip root && rm root.zip
+mkdir ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/hd
+cp -rf /tmp/p3-weixin-master/* ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/hd/
+erb ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/hd/WEB-INF/classes/db.properties.erb > ${OPENSHIFT_DEPENDENCIES_DIR}jbossews/webapps/hd/WEB-INF/classes/db.properties
+mysql
+use jungule
+source /tmp/p3-weixin-master/p3-base-init.sql
+source /tmp/p3-weixin-master/commonftb-init.sql
+source /tmp/p3-weixin-master/gzbargain-init.sql
+source /tmp/p3-weixin-master/jiugongge-init.sql
+source /tmp/p3-weixin-master/shaketicket-init.sql
+
 
